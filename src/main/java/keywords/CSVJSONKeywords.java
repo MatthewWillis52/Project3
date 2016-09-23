@@ -14,6 +14,14 @@ public class CSVJSONKeywords {
     }
     
     public boolean jsonStringsAreEqual(String s, String t) {
-        return false;
-    }
+			   JSONParser parser = new JSONParser();
+			try {
+				Object sObj = parser.parse(s);
+				Object tObj = parser.parse(t);
+				return sObj.equals(tObj);
+			}
+			catch(ParseException e) {
+				return false;
+			}
+	}
 }

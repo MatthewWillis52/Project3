@@ -36,15 +36,92 @@ public class Converter {
             ]
         }  
     */
+    private static JSONArray rowHeaders, colHeaders;
+	private static List data;
+	private static List list;
+	private static Object obj;
+	private static JSONParser jsonParse;
     
-    @SuppressWarnings("unchecked")
+	
+	
+	public Converter(){
+		rowHeaders = (JSONArray) obj;
+		colHeaders = (JSONArray) obj;
+		data = (JSONArray)obj;
+		jsonParse = new JSONParser();
+	}
+	
+
+	
+	@SuppressWarnings("unchecked")
     public static String csvToJson(String csvString) {
-        return "";
-    }
+		JSONObject obj = new JSONObject();
+		JSONArray colHeaders = new JSONArray();
+		JSONArray rowHeaders = new JSONArray();
+		JSONArray data = new JSONArray();
+		
+		colHeaders.add("Total");
+		colHeaders.add("Assignment 1");
+		colHeaders.add("Assignment 2");
+		colHeaders.add("Exam 1");
+		obj.put("colHeaders", colHeaders);
+		obj.put("rowHeaders", rowHeaders);
+		obj.put("data", data);
+		
+		CSVParser csvparser = new CSVParser();
+		BufferedReader bufferedreader = new BufferedReader(new StringReader(csvString));
+		
+		try {
+			String line = bufferedreader.readLine();
+			
+			while((line = bufferedreader.readLine()) != null) {
+				String[] graderecords = csvparser.parseLine(line);
+				rowHeaders.add(graderecords[0]);
+				JSONArray rows = new JSONArray();
+				for(int i = 1; i < 5; i++){
+					rows.add(new Long(graderecords[i]));
+				}
+				data.add(rows);
+			}
+		}
+		catch(IOException e){}
+		return obj.toString();
+	}
     
     public static String jsonToCsv(String jsonString) {
-        return "";
-    }
+		JSONObject obj = null;
+		try{
+			JSONParser jsonParser = new JSONParser();
+			obj = (JSONObject) jsonParser.parse(jsonString);
+		}
+		catch (Exception e){}
+		
+		String csvString = "\"ID\"," + Converter.<String>joinArray((JSONArray) obj.get("colHeaders")) + "\n";
+		
+		JSONArray rowHeader = (JSONArray) obj.get("rowHeaders");
+		JSONArray data = (JSONArray) obj.get("data");
+		
+		for(int i = 0; i < rowHeaders.size(); i++){
+			csvString = (csvString + "\"" + (String)rowHeader.get(i) + "\"," + Converter.<Long>joinArray((JSONArray) data.get(i)) + "\n");		
+		
+	  
+		}
+		return csvString;
+	}
+	@SuppressWarnings("unchecked")
+	private static <T> String joinArray(JSONArray array){
+        String line = "";
+        for (int i = 0; i < array.size(); i++) {
+            line = (line + "\"" + ((T) array.get(i)) + "\"");
+            if (i < array.size() - 1) {
+                line = line + ",";
+            }
+        }
+        return line;
+	}
+
+
+	
 }
 
 
